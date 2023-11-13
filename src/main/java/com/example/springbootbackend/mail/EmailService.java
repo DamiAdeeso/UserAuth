@@ -18,9 +18,9 @@ public class EmailService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendPasswordMail(String to,String password) {
+    public void sendPasswordMail(String to,String username, String password) {
         String subject = "Welcome to Egora";
-        String body = "This is your secure generated password:" + password;
+        String body = "Hi " + username + "\n This is your secure generated password:" + password;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

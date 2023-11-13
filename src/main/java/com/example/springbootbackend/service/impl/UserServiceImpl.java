@@ -37,22 +37,17 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public String generateRandPass(){
-        List rules = Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
-                new CharacterRule(EnglishCharacterData.LowerCase, 1),
-                new CharacterRule(EnglishCharacterData.Digit, 1),
-                new CharacterRule(EnglishCharacterData.Special,1));
 
-        PasswordGenerator generator = new PasswordGenerator();
-        String password = generator.generatePassword(8,rules);
-        return password;
-    }
 
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
-        if (userRepository.existsByEmail(loginDto.getEmail()) != null) {
-            return new ResponseEntity<>("Email is not present!", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto){
+        if (userRepository.existsByEmail(loginDto.getEmail())) {
+            Optional<User> user = userRepository.findByEmail(loginDto.getEmail());
+            if(passwordEncoder.matches(loginDto.getPassword(),user.get().getPassword())){
+                return new ResponseEntity<>(user, HttpStatus.OK);
+            }
+
         }
-        return new ResponseEntity<>("Logged in successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Incorrect Email or Password", HttpStatus.OK);
     }
 
 
@@ -60,15 +55,16 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(userDto.getEmail())) {
             return new ResponseEntity<>("Email is present!", HttpStatus.BAD_REQUEST);
         }
-        String pass = generateRandPass();
+
         User user = new User();
-        user.setUsername(userDto.getUsername());
+        user.setFirstname(userDto.getFirstname());
+        user.setLastname(userDto.getLastname());
+        user.setPhonenumber(userDto.getPhonenumber());
         user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(pass));
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         userRepository.save(user);
-        emailService.sendPasswordMail(user.getEmail(),pass);
-        System.out.println(user.getEmail()+" " +pass);
+//        emailService.sendPasswordMail(user.getEmail(),user.getUsername(),pass);
         return new ResponseEntity<>("User registered and mail sent successfully", HttpStatus.OK);
     }
 

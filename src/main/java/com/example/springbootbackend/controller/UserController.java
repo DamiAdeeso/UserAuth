@@ -22,7 +22,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto) throws UsernameNotFoundException {
-        return userServiceImpl.login(loginDto);
+        return (ResponseEntity<String>) userServiceImpl.login(loginDto);
     }
 
     @PostMapping("/register")
